@@ -88,8 +88,8 @@ export default function UpgradePage() {
                     <div className="space-y-6">
                         <div
                             className={`p-6 rounded-2xl border-2 cursor-pointer transition-all ${method === 'EASYPAISA'
-                                    ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:border-indigo-500'
-                                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-indigo-300'
+                                ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:border-indigo-500'
+                                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-indigo-300'
                                 }`}
                             onClick={() => setMethod('EASYPAISA')}
                         >
@@ -106,15 +106,15 @@ export default function UpgradePage() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span>Account Number:</span>
-                                    <span className="font-mono font-bold text-lg select-all">03123456789</span>
+                                    <span className="font-mono font-bold text-lg select-all">03152914836</span>
                                 </div>
                             </div>
                         </div>
 
                         <div
                             className={`p-6 rounded-2xl border-2 cursor-pointer transition-all ${method === 'BANK'
-                                    ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:border-indigo-500'
-                                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-indigo-300'
+                                ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:border-indigo-500'
+                                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-indigo-300'
                                 }`}
                             onClick={() => setMethod('BANK')}
                         >
@@ -125,17 +125,9 @@ export default function UpgradePage() {
                                 {method === 'BANK' && <div className="w-4 h-4 bg-indigo-600 rounded-full" />}
                             </div>
                             <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300 p-4 bg-white/50 dark:bg-gray-700/50 rounded-xl">
-                                <div className="flex justify-between">
-                                    <span>Bank Name:</span>
-                                    <span className="font-bold">HBL (Habib Bank Ltd)</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Account Title:</span>
-                                    <span className="font-mono font-bold">Roonjha Tech</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Account Number:</span>
-                                    <span className="font-mono font-bold select-all">1234-5678-9012-34</span>
+                                <div className="text-center py-2">
+                                    <p className="text-sm font-medium mb-1">Please ask for Bank Account Number from:</p>
+                                    <p className="font-mono font-bold text-lg text-indigo-600 dark:text-indigo-400 select-all">03152914836</p>
                                 </div>
                             </div>
                         </div>

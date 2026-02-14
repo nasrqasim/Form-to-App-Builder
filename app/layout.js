@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={`${inter.className} transition-colors duration-300`}>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
                     <Header />
                     <main className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
                         {children}

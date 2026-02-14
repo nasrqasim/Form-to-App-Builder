@@ -27,7 +27,11 @@ export default function LoginPage() {
             const data = await res.json();
 
             if (res.ok) {
-                router.push('/dashboard');
+                if (data.user.role === 'ADMIN') {
+                    router.push('/admin/dashboard');
+                } else {
+                    router.push('/dashboard');
+                }
             } else {
                 setError(data.message || 'Login failed');
             }
