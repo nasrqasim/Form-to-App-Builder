@@ -1,31 +1,48 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import AppMeta from '@/models/AppMeta';
-import { getDynamicModel } from '@/models/dynamicModel';
+import { prisma } from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
 export async function DELETE(req, { params }) {
     try {
-        const { appName: slug, id } = await params;
-        await dbConnect();
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
+        }
 
-        const appMeta = await AppMeta.findOne({ slug });
-        if (!appMeta) {
+        const { appName: slug, id: recordId } = await params;
+
+        const app = await prisma.app.findUnique({
+            where: { slug }
+        });
+
+        if (!app) {
             return NextResponse.json({ message: 'App not found' }, { status: 404 });
         }
 
-        const Model = getDynamicModel(appMeta.collectionName, appMeta.fields);
-        const deletedItem = await Model.findByIdAndDelete(id);
-
-        if (!deletedItem) {
-            return NextResponse.json({ message: 'Item not found' }, { status: 404 });
+        if (app.userId !== user.userId) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
         }
 
-        return NextResponse.json({ message: 'Item deleted successfully' }, { status: 200 });
+        const record = await prisma.record.findUnique({
+            where: { id: recordId }
+        });
+
+        if (!record || record.appId !== app.id) {
+            // Already deleted or not found
+            return NextResponse.json({ message: 'Record not found' }, { status: 404 });
+        }
+
+        await prisma.record.delete({
+            where: { id: recordId }
+        });
+
+        return NextResponse.json({
+            success: true,
+            message: 'Record deleted successfully'
+        });
+
     } catch (error) {
-        console.error('Delete error:', error);
-        return NextResponse.json(
-            { message: 'Internal Server Error', error: error.message },
-            { status: 500 }
-        );
+        console.error('Delete record error:', error);
+        return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
     }
 }

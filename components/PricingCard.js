@@ -2,7 +2,7 @@
 
 import { CheckCircle2 } from 'lucide-react';
 
-export default function PricingCard({ plan, price, description, features, highlighted = false }) {
+export default function PricingCard({ plan, price, description, features, highlighted = false, onAction }) {
     return (
         <div className={`relative p-8 rounded-[32px] border transition-all duration-300 ${highlighted
             ? 'bg-gray-900 text-white border-gray-800 dark:bg-indigo-600 dark:border-indigo-500 shadow-2xl scale-105 z-10'
@@ -34,10 +34,12 @@ export default function PricingCard({ plan, price, description, features, highli
                 ))}
             </ul>
 
-            <button className={`w-full py-4 rounded-2xl font-black transition-all ${highlighted
-                ? 'bg-indigo-600 hover:bg-indigo-700 dark:bg-white dark:hover:bg-gray-100 dark:text-indigo-600 text-white shadow-lg shadow-indigo-500/20 dark:shadow-none'
-                : 'bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-white'
-                }`}>
+            <button
+                onClick={onAction}
+                className={`w-full py-4 rounded-2xl font-black transition-all ${highlighted
+                    ? 'bg-indigo-600 hover:bg-indigo-700 dark:bg-white dark:hover:bg-gray-100 dark:text-indigo-600 text-white shadow-lg shadow-indigo-500/20 dark:shadow-none'
+                    : 'bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-white'
+                    }`}>
                 {price === 'Free' ? 'Get Started' : 'Subscribe Now'}
             </button>
         </div>

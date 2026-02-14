@@ -1,29 +1,31 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import AppMeta from '@/models/AppMeta';
+import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 
 export async function DELETE(req, { params }) {
     try {
-        await dbConnect();
-
         const user = await getAuthUser();
         if (!user) {
             return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
         }
 
-        const { appName: id } = await params;
+        const { appName: slug } = await params;
 
-        const app = await AppMeta.findOne({ _id: id, userId: user.userId });
+        const app = await prisma.app.findUnique({
+            where: { slug }
+        });
 
         if (!app) {
-            return NextResponse.json({ message: 'App not found or unauthorized' }, { status: 404 });
+            return NextResponse.json({ message: 'App not found' }, { status: 404 });
         }
 
-        // We only delete the metadata. 
-        // Usually we might want to drop the collection too, but for safety in this builder 
-        // we'll just remove the metadata so it doesn't show in dashboard.
-        await AppMeta.deleteOne({ _id: id });
+        if (app.userId !== user.userId) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+        }
+
+        await prisma.app.delete({
+            where: { id: app.id }
+        });
 
         return NextResponse.json({
             success: true,

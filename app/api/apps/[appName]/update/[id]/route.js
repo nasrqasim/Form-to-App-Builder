@@ -1,63 +1,53 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/mongodb';
-import AppMeta from '@/models/AppMeta';
-import { getDynamicModel } from '@/models/dynamicModel';
+import { prisma } from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
 export async function PUT(req, { params }) {
     try {
-        const { appName: slug, id } = await params;
-        await dbConnect();
-
-        const appMeta = await AppMeta.findOne({ slug });
-        if (!appMeta) {
-            return NextResponse.json({ message: 'App not found' }, { status: 404 });
+        const user = await getAuthUser();
+        if (!user) {
+            return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
         }
 
-        const Model = getDynamicModel(appMeta.collectionName, appMeta.fields);
+        const { appName: slug, id: recordId } = await params;
         const body = await req.json();
 
-        const updatedItem = await Model.findByIdAndUpdate(id, body, {
-            new: true,
-            runValidators: true
+        const app = await prisma.app.findUnique({
+            where: { slug }
         });
 
-        if (!updatedItem) {
-            return NextResponse.json({ message: 'Item not found' }, { status: 404 });
-        }
-
-        return NextResponse.json(updatedItem, { status: 200 });
-    } catch (error) {
-        console.error('Update error:', error);
-        return NextResponse.json(
-            { message: 'Internal Server Error', error: error.message },
-            { status: 500 }
-        );
-    }
-}
-
-export async function GET(req, { params }) {
-    try {
-        const { appName: slug, id } = await params;
-        await dbConnect();
-
-        const appMeta = await AppMeta.findOne({ slug });
-        if (!appMeta) {
+        if (!app) {
             return NextResponse.json({ message: 'App not found' }, { status: 404 });
         }
 
-        const Model = getDynamicModel(appMeta.collectionName, appMeta.fields);
-        const item = await Model.findById(id);
-
-        if (!item) {
-            return NextResponse.json({ message: 'Item not found' }, { status: 404 });
+        if (app.userId !== user.userId) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
         }
 
-        return NextResponse.json({ item, appMeta }, { status: 200 });
+        // Verify record ownership/existence within app
+        const record = await prisma.record.findUnique({
+            where: { id: recordId }
+        });
+
+        if (!record || record.appId !== app.id) {
+            return NextResponse.json({ message: 'Record not found' }, { status: 404 });
+        }
+
+        const updatedRecord = await prisma.record.update({
+            where: { id: recordId },
+            data: {
+                data: body
+            }
+        });
+
+        return NextResponse.json({
+            success: true,
+            message: 'Record updated successfully',
+            data: { _id: updatedRecord.id, ...updatedRecord.data }
+        });
+
     } catch (error) {
-        console.error('Get single item error:', error);
-        return NextResponse.json(
-            { message: 'Internal Server Error', error: error.message },
-            { status: 500 }
-        );
+        console.error('Update record error:', error);
+        return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
     }
 }

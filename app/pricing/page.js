@@ -1,8 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import PricingCard from '@/components/PricingCard';
 
 export default function PricingPage() {
+    const router = useRouter();
     const plans = [
         {
             plan: "Starter",
@@ -14,7 +16,8 @@ export default function PricingPage() {
                 "Basic Table View",
                 "Standard App Logo",
                 "Community Support"
-            ]
+            ],
+            path: "/register"
         },
         {
             plan: "Pro",
@@ -28,7 +31,8 @@ export default function PricingPage() {
                 "Advanced Card Views",
                 "Priority Email Support"
             ],
-            highlighted: true
+            highlighted: true,
+            path: "/upgrade"
         },
         {
             plan: "Business",
@@ -41,7 +45,8 @@ export default function PricingPage() {
                 "Advanced Analytics",
                 "API Keys Access",
                 "24/7 Phone Support"
-            ]
+            ],
+            path: "/contact"
         }
     ];
 
@@ -64,7 +69,11 @@ export default function PricingPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-8">
                         {plans.map((p, i) => (
-                            <PricingCard key={i} {...p} />
+                            <PricingCard
+                                key={i}
+                                {...p}
+                                onAction={() => router.push(p.path)}
+                            />
                         ))}
                     </div>
                 </div>
