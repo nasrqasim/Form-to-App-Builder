@@ -52,14 +52,15 @@ export async function middleware(req) {
             const loginUrl = new URL('/login', req.url);
             if (pathname.startsWith('/builder')) {
                 loginUrl.searchParams.set('reason', 'create_app');
-            } else {
-                loginUrl.searchParams.set('redirect', pathname);
             }
+            loginUrl.searchParams.set('redirect', pathname);
             return NextResponse.redirect(loginUrl);
         }
         try {
-            const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-default-secret-change-this');
-            await jwtVerify(token, secret);
+            const secret = new TextEncoder().encode((process.env.JWT_SECRET || 'your-default-secret-change-this').trim());
+            await jwtVerify(token, secret, {
+                clockTolerance: 60, // 60 seconds tolerance
+            });
         } catch (error) {
             console.error('Middleware Auth Error:', error);
             const loginUrl = new URL('/login', req.url);
@@ -72,5 +73,13 @@ export async function middleware(req) {
 }
 
 export const config = {
-    matcher: ['/admin/:path*', '/dashboard/:path*', '/builder/:path*', '/upgrade/:path*'],
+    matcher: [
+        '/admin/:path*',
+        '/dashboard/:path*',
+        '/dashboard',
+        '/builder/:path*',
+        '/builder',
+        '/upgrade/:path*',
+        '/upgrade'
+    ],
 };

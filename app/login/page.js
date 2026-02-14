@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, Lock, Loader2, Rocket, LogIn } from 'lucide-react';
@@ -15,6 +15,21 @@ function LoginForm() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const res = await fetch('/api/auth/me');
+                if (res.ok) {
+                    const redirect = searchParams.get('redirect');
+                    router.push(redirect || '/dashboard');
+                }
+            } catch (err) {
+                // Not logged in, stay on login page
+            }
+        };
+        checkAuth();
+    }, [router, searchParams]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,7 +46,10 @@ function LoginForm() {
             const data = await res.json();
 
             if (res.ok) {
-                if (data.user.role === 'ADMIN') {
+                const redirect = searchParams.get('redirect');
+                if (redirect) {
+                    router.push(redirect);
+                } else if (data.user.role === 'ADMIN') {
                     router.push('/admin/dashboard');
                 } else {
                     router.push('/dashboard');
