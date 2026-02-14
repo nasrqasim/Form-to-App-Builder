@@ -49,7 +49,13 @@ export async function middleware(req) {
     // Protected User Routes
     if (pathname.startsWith('/dashboard') || pathname.startsWith('/builder') || pathname.startsWith('/upgrade')) {
         if (!token) {
-            return NextResponse.redirect(new URL('/login', req.url));
+            const loginUrl = new URL('/login', req.url);
+            if (pathname.startsWith('/builder')) {
+                loginUrl.searchParams.set('reason', 'create_app');
+            } else {
+                loginUrl.searchParams.set('redirect', pathname);
+            }
+            return NextResponse.redirect(loginUrl);
         }
         try {
             const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-default-secret-change-this');
