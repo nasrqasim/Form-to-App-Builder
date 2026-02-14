@@ -182,26 +182,38 @@ export default function AdminDashboard() {
                                             <StatusBadge status={req.status} />
                                         </td>
                                         <td className="p-6 text-right">
-                                            {req.status === 'PENDING' && (
-                                                <div className="flex justify-end gap-2">
+                                            <div className="flex justify-end gap-2">
+                                                {req.status === 'PENDING' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleAction(req.id, 'APPROVE')}
+                                                            disabled={!!processingId}
+                                                            className="p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors disabled:opacity-50"
+                                                            title="Approve"
+                                                        >
+                                                            {processingId === req.id ? <Loader2 className="animate-spin" size={16} /> : <CheckCircle size={16} />}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleAction(req.id, 'REJECT')}
+                                                            disabled={!!processingId}
+                                                            className="p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors disabled:opacity-50"
+                                                            title="Reject"
+                                                        >
+                                                            {processingId === req.id ? <Loader2 className="animate-spin" size={16} /> : <XCircle size={16} />}
+                                                        </button>
+                                                    </>
+                                                )}
+                                                {req.status === 'APPROVED' && (
                                                     <button
-                                                        onClick={() => handleAction(req.id, 'APPROVE')}
+                                                        onClick={() => handleAction(req.id, 'REVOKE')}
                                                         disabled={!!processingId}
-                                                        className="p-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors disabled:opacity-50"
-                                                        title="Approve"
+                                                        className="p-2 bg-amber-600 hover:bg-amber-500 text-white rounded-lg transition-colors disabled:opacity-50"
+                                                        title="Revoke Pro Plan"
                                                     >
-                                                        {processingId === req.id ? <Loader2 className="animate-spin" size={16} /> : <CheckCircle size={16} />}
+                                                        {processingId === req.id ? <Loader2 className="animate-spin" size={16} /> : <LogOut size={16} />}
                                                     </button>
-                                                    <button
-                                                        onClick={() => handleAction(req.id, 'REJECT')}
-                                                        disabled={!!processingId}
-                                                        className="p-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors disabled:opacity-50"
-                                                        title="Reject"
-                                                    >
-                                                        {processingId === req.id ? <Loader2 className="animate-spin" size={16} /> : <XCircle size={16} />}
-                                                    </button>
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -232,7 +244,8 @@ function StatusBadge({ status }) {
     const styles = {
         PENDING: "bg-amber-500/20 text-amber-300 border-amber-500/30",
         APPROVED: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-        REJECTED: "bg-red-500/20 text-red-300 border-red-500/30"
+        REJECTED: "bg-red-500/20 text-red-300 border-red-500/30",
+        REVOKED: "bg-gray-500/20 text-gray-300 border-gray-500/30"
     };
 
     return (

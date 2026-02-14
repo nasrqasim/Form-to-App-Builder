@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
     Rocket, Plus, ExternalLink, Trash2, Layout, Database,
     Calendar, Loader2, LayoutGrid, List as ListIcon,
-    ArrowRight, Globe, ShieldCheck
+    ArrowRight, Globe, ShieldCheck, Crown
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -86,8 +86,24 @@ export default function DashboardPage() {
                                 <span>Verified Developer Account</span>
                             </div>
                             <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
-                                Welcome back, <span className="text-indigo-400">{user?.name?.split(' ')[0]}</span>
+                                Welcome back, <span className="text-indigo-400">{user?.name?.split(' ')[0] || user?.email?.split('@')[0]}</span>
                             </h1>
+                            {user?.plan === 'PRO' && user?.planExpiresAt && (
+                                <div className="mt-6 bg-gray-900/50 backdrop-blur-sm border border-indigo-500/30 p-4 rounded-2xl inline-flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+                                        <Crown size={20} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+                                            Pro Plan Active
+                                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                        </h3>
+                                        <p className="text-indigo-200 text-xs font-medium mt-0.5">
+                                            Valid until {new Date(user.planExpiresAt).toLocaleDateString()} — You have full access.
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
                             <p className="text-gray-400 text-lg max-w-xl">
                                 You have {apps.length} active application{apps.length !== 1 ? 's' : ''} deployed on the network.
                             </p>

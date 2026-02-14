@@ -11,7 +11,7 @@ export async function POST(req) {
 
         const { requestId, action } = await req.json();
 
-        if (!requestId || !['APPROVE', 'REJECT'].includes(action)) {
+        if (!requestId || !['APPROVE', 'REJECT', 'REVOKE'].includes(action)) {
             return NextResponse.json({ message: 'Invalid request' }, { status: 400 });
         }
 
@@ -32,7 +32,21 @@ export async function POST(req) {
                 }),
                 prisma.user.update({
                     where: { id: request.userId },
-                    data: { plan: 'PRO' }
+                    data: {
+                        plan: 'PRO',
+                        planExpiresAt: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000) // 180 days ~ 6 months
+                    }
+                })
+            ]);
+        } else if (action === 'REVOKE') {
+            await prisma.$transaction([
+                prisma.upgradeRequest.update({
+                    where: { id: requestId },
+                    data: { status: 'REVOKED' }
+                }),
+                prisma.user.update({
+                    where: { id: request.userId },
+                    data: { plan: 'FREE', planExpiresAt: null }
                 })
             ]);
         } else {

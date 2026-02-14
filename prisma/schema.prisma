@@ -16,6 +16,7 @@ model User {
   apps            App[]
   upgradeRequests UpgradeRequest[]
   createdAt       DateTime         @default(now())
+  planExpiresAt   DateTime?
 }
 
 model App {
@@ -74,4 +75,5 @@ enum RequestStatus {
   PENDING
   APPROVED
   REJECTED
+  REVOKED
 }

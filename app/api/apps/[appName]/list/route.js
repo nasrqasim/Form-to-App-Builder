@@ -33,7 +33,8 @@ export async function GET(req, { params }) {
 
         return NextResponse.json({
             success: true,
-            data: records.map(r => ({
+            appMeta: app,
+            items: records.map(r => ({
                 _id: r.id, // Frontend compatibility
                 ...r.data,
                 createdAt: r.createdAt
