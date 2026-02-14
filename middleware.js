@@ -52,10 +52,13 @@ export async function middleware(req) {
             return NextResponse.redirect(new URL('/login', req.url));
         }
         try {
-            const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+            const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-default-secret-change-this');
             await jwtVerify(token, secret);
         } catch (error) {
-            return NextResponse.redirect(new URL('/login', req.url));
+            console.error('Middleware Auth Error:', error);
+            const loginUrl = new URL('/login', req.url);
+            loginUrl.searchParams.set('redirect', pathname);
+            return NextResponse.redirect(loginUrl);
         }
     }
 
