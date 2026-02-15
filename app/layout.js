@@ -14,6 +14,9 @@ export const metadata = {
         description: 'Turn Your Forms Into Powerful Full-Stack Applications in Seconds',
         type: 'website',
     },
+    icons: {
+        icon: '/favicon.svg',
+    },
 };
 
 export default function RootLayout({ children }) {
