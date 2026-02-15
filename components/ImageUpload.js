@@ -11,30 +11,65 @@ export default function ImageUpload({ value, onChange, label = "Upload Image" })
         const file = e.target.files[0];
         if (!file) return;
 
-        // Validation
         const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
         if (!validTypes.includes(file.type)) {
             alert('Please upload a valid image (JPG, PNG, WebP)');
             return;
         }
 
-        if (file.size > 2 * 1024 * 1024) { // 2MB limit
-            alert('File is too large (max 2MB)');
-            return;
-        }
-
         setUploading(true);
 
         try {
-            // 1. Get signature from our API
+            // 1. Client-side compression
+            const compressedFile = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 1200;
+                        const MAX_HEIGHT = 1200;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob((blob) => {
+                            resolve(new File([blob], file.name, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now(),
+                            }));
+                        }, 'image/jpeg', 0.8); // 80% quality
+                    };
+                };
+            });
+
+            // 2. Get signature from our API
             const signRes = await fetch('/api/upload/sign');
             const signData = await signRes.json();
 
             if (!signRes.ok) throw new Error(signData.error || 'Failed to get upload signature');
 
-            // 2. Upload directly to Cloudinary
+            // 3. Upload directly to Cloudinary
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', compressedFile);
             formData.append('api_key', signData.apiKey);
             formData.append('timestamp', signData.timestamp);
             formData.append('signature', signData.signature);
