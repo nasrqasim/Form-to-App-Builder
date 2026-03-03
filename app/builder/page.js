@@ -24,6 +24,28 @@ import ImageUpload from '@/components/ImageUpload';
 export default function AppBuilder() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [user, setUser] = useState(null);
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const res = await fetch('/api/auth/me');
+                const data = await res.json();
+                if (res.ok) {
+                    setUser(data.user);
+                } else {
+                    router.push('/login?redirect=/builder');
+                }
+            } catch (err) {
+                router.push('/login?redirect=/builder');
+            } finally {
+                setIsCheckingAuth(false);
+            }
+        };
+        checkAuth();
+    }, [router]);
+
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         name: '',
@@ -94,6 +116,14 @@ export default function AppBuilder() {
             setLoading(false);
         }
     };
+
+    if (isCheckingAuth) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+                <Loader2 className="animate-spin text-indigo-600 dark:text-indigo-400 w-12 h-12" />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-12 pb-24 transition-colors duration-300">

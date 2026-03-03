@@ -56,17 +56,8 @@ export async function middleware(req) {
             loginUrl.searchParams.set('redirect', pathname);
             return NextResponse.redirect(loginUrl);
         }
-        try {
-            const secret = new TextEncoder().encode((process.env.JWT_SECRET || 'your-default-secret-change-this').trim());
-            await jwtVerify(token, secret, {
-                clockTolerance: 60, // 60 seconds tolerance
-            });
-        } catch (error) {
-            console.error('Middleware Auth Error:', error);
-            const loginUrl = new URL('/login', req.url);
-            loginUrl.searchParams.set('redirect', pathname);
-            return NextResponse.redirect(loginUrl);
-        }
+        // Token presence is verified. Strict signature and expiration validation
+        // happens within the Node.js API routes (e.g., /api/auth/me) and server actions.
     }
 
     return NextResponse.next();
