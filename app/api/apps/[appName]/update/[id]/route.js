@@ -2,6 +2,38 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 
+export async function GET(req, { params }) {
+    try {
+        const { appName: slug, id: recordId } = await params;
+
+        const app = await prisma.app.findUnique({
+            where: { slug }
+        });
+
+        if (!app) {
+            return NextResponse.json({ message: 'App not found' }, { status: 404 });
+        }
+
+        const record = await prisma.record.findUnique({
+            where: { id: recordId }
+        });
+
+        if (!record || record.appId !== app.id) {
+            return NextResponse.json({ message: 'Record not found' }, { status: 404 });
+        }
+
+        return NextResponse.json({
+            success: true,
+            appMeta: app,
+            item: { _id: record.id, ...record.data }
+        });
+
+    } catch (error) {
+        console.error('Fetch record error:', error);
+        return NextResponse.json({ message: 'Internal Server Error', error: error.message }, { status: 500 });
+    }
+}
+
 export async function PUT(req, { params }) {
     try {
         const user = await getAuthUser();
